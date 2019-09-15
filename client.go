@@ -368,6 +368,7 @@ func (c *client) createNewTLSSession(version protocol.VersionNumber) error {
 		MaxAckDelay:                    protocol.MaxAckDelayInclGranularity,
 		AckDelayExponent:               protocol.AckDelayExponent,
 		DisableMigration:               true,
+		ActiveConnectionIDLimit:        protocol.MaxActiveConnectionIDs,
 	}
 
 	c.mutex.Lock()
