@@ -39,7 +39,6 @@ type packetHandlerManager interface {
 	Remove(protocol.ConnectionID)
 	ReplaceWithClosed(protocol.ConnectionID, packetHandler)
 	AddResetToken([16]byte, packetHandler)
-	RemoveResetToken([16]byte)
 	GetStatelessResetToken(protocol.ConnectionID) [16]byte
 	SetServer(unknownPacketHandler)
 	CloseServer()
@@ -62,7 +61,6 @@ type sessionRunner interface {
 	Remove(protocol.ConnectionID)
 	ReplaceWithClosed(protocol.ConnectionID, packetHandler)
 	AddResetToken([16]byte, packetHandler)
-	RemoveResetToken([16]byte)
 }
 
 // A Listener of QUIC
