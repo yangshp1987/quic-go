@@ -34,11 +34,10 @@ type unknownPacketHandler interface {
 
 type packetHandlerManager interface {
 	io.Closer
-	Add(protocol.ConnectionID, packetHandler)
+	Add(protocol.ConnectionID, *[16]byte, packetHandler)
 	Retire(protocol.ConnectionID)
 	Remove(protocol.ConnectionID)
 	ReplaceWithClosed(protocol.ConnectionID, packetHandler)
-	AddResetToken([16]byte, packetHandler)
 	GetStatelessResetToken(protocol.ConnectionID) [16]byte
 	SetServer(unknownPacketHandler)
 	CloseServer()
@@ -60,7 +59,7 @@ type sessionRunner interface {
 	Retire(protocol.ConnectionID)
 	Remove(protocol.ConnectionID)
 	ReplaceWithClosed(protocol.ConnectionID, packetHandler)
-	AddResetToken([16]byte, packetHandler)
+	Add(protocol.ConnectionID, *[16]byte, packetHandler)
 }
 
 // A Listener of QUIC
@@ -385,7 +384,7 @@ func (s *baseServer) handlePacketImpl(p *receivedPacket) bool /* was the packet 
 	}
 	// Don't put the packet buffer back if a new session was created.
 	// The session will handle the packet and take of that.
-	s.sessionHandler.Add(connID, sess)
+	s.sessionHandler.Add(connID, nil, sess)
 	return true
 }
 

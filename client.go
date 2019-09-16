@@ -390,7 +390,7 @@ func (c *client) createNewTLSSession(version protocol.VersionNumber) error {
 		return err
 	}
 	c.session = sess
-	c.packetHandlers.Add(c.srcConnID, c)
+	c.packetHandlers.Add(c.srcConnID, nil, c)
 	return nil
 }
 

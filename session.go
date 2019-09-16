@@ -1036,8 +1036,10 @@ func (s *session) processTransportParameters(data []byte) {
 	s.frameParser.SetAckDelayExponent(params.AckDelayExponent)
 	s.connFlowController.UpdateSendWindow(params.InitialMaxData)
 	s.rttStats.SetMaxAckDelay(params.MaxAckDelay)
+	// The stateless reset token is only sent by the server.
 	if params.StatelessResetToken != nil {
-		s.sessionRunner.AddResetToken(*params.StatelessResetToken, s)
+		// replace the exisiting entry in the session runner
+		s.sessionRunner.Add(s.srcConnID, params.StatelessResetToken, s)
 	}
 	// On the server side, the early session is ready as soon as we processed
 	// the client's transport parameters.

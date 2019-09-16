@@ -35,27 +35,15 @@ func (m *MockPacketHandlerManager) EXPECT() *MockPacketHandlerManagerMockRecorde
 }
 
 // Add mocks base method
-func (m *MockPacketHandlerManager) Add(arg0 protocol.ConnectionID, arg1 packetHandler) {
+func (m *MockPacketHandlerManager) Add(arg0 protocol.ConnectionID, arg1 *[16]byte, arg2 packetHandler) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Add", arg0, arg1)
+	m.ctrl.Call(m, "Add", arg0, arg1, arg2)
 }
 
 // Add indicates an expected call of Add
-func (mr *MockPacketHandlerManagerMockRecorder) Add(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockPacketHandlerManagerMockRecorder) Add(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Add", reflect.TypeOf((*MockPacketHandlerManager)(nil).Add), arg0, arg1)
-}
-
-// AddResetToken mocks base method
-func (m *MockPacketHandlerManager) AddResetToken(arg0 [16]byte, arg1 packetHandler) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "AddResetToken", arg0, arg1)
-}
-
-// AddResetToken indicates an expected call of AddResetToken
-func (mr *MockPacketHandlerManagerMockRecorder) AddResetToken(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddResetToken", reflect.TypeOf((*MockPacketHandlerManager)(nil).AddResetToken), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Add", reflect.TypeOf((*MockPacketHandlerManager)(nil).Add), arg0, arg1, arg2)
 }
 
 // Close mocks base method
@@ -108,18 +96,6 @@ func (m *MockPacketHandlerManager) Remove(arg0 protocol.ConnectionID) {
 func (mr *MockPacketHandlerManagerMockRecorder) Remove(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Remove", reflect.TypeOf((*MockPacketHandlerManager)(nil).Remove), arg0)
-}
-
-// RemoveResetToken mocks base method
-func (m *MockPacketHandlerManager) RemoveResetToken(arg0 [16]byte) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "RemoveResetToken", arg0)
-}
-
-// RemoveResetToken indicates an expected call of RemoveResetToken
-func (mr *MockPacketHandlerManagerMockRecorder) RemoveResetToken(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveResetToken", reflect.TypeOf((*MockPacketHandlerManager)(nil).RemoveResetToken), arg0)
 }
 
 // ReplaceWithClosed mocks base method

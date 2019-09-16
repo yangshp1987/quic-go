@@ -34,16 +34,16 @@ func (m *MockSessionRunner) EXPECT() *MockSessionRunnerMockRecorder {
 	return m.recorder
 }
 
-// AddResetToken mocks base method
-func (m *MockSessionRunner) AddResetToken(arg0 [16]byte, arg1 packetHandler) {
+// Add mocks base method
+func (m *MockSessionRunner) Add(arg0 protocol.ConnectionID, arg1 *[16]byte, arg2 packetHandler) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "AddResetToken", arg0, arg1)
+	m.ctrl.Call(m, "Add", arg0, arg1, arg2)
 }
 
-// AddResetToken indicates an expected call of AddResetToken
-func (mr *MockSessionRunnerMockRecorder) AddResetToken(arg0, arg1 interface{}) *gomock.Call {
+// Add indicates an expected call of Add
+func (mr *MockSessionRunnerMockRecorder) Add(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddResetToken", reflect.TypeOf((*MockSessionRunner)(nil).AddResetToken), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Add", reflect.TypeOf((*MockSessionRunner)(nil).Add), arg0, arg1, arg2)
 }
 
 // Remove mocks base method
@@ -56,18 +56,6 @@ func (m *MockSessionRunner) Remove(arg0 protocol.ConnectionID) {
 func (mr *MockSessionRunnerMockRecorder) Remove(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Remove", reflect.TypeOf((*MockSessionRunner)(nil).Remove), arg0)
-}
-
-// RemoveResetToken mocks base method
-func (m *MockSessionRunner) RemoveResetToken(arg0 [16]byte) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "RemoveResetToken", arg0)
-}
-
-// RemoveResetToken indicates an expected call of RemoveResetToken
-func (mr *MockSessionRunnerMockRecorder) RemoveResetToken(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveResetToken", reflect.TypeOf((*MockSessionRunner)(nil).RemoveResetToken), arg0)
 }
 
 // ReplaceWithClosed mocks base method

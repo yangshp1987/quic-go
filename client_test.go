@@ -128,7 +128,7 @@ var _ = Describe("Client", func() {
 			}
 
 			manager := NewMockPacketHandlerManager(mockCtrl)
-			manager.EXPECT().Add(gomock.Any(), gomock.Any())
+			manager.EXPECT().Add(gomock.Any(), nil, gomock.Any())
 			manager.EXPECT().Close()
 			mockMultiplexer.EXPECT().AddConn(gomock.Any(), gomock.Any(), gomock.Any()).Return(manager, nil)
 
@@ -159,7 +159,7 @@ var _ = Describe("Client", func() {
 
 		It("uses the tls.Config.ServerName as the hostname, if present", func() {
 			manager := NewMockPacketHandlerManager(mockCtrl)
-			manager.EXPECT().Add(gomock.Any(), gomock.Any())
+			manager.EXPECT().Add(gomock.Any(), nil, gomock.Any())
 			manager.EXPECT().Close()
 			mockMultiplexer.EXPECT().AddConn(gomock.Any(), gomock.Any(), gomock.Any()).Return(manager, nil)
 
@@ -191,7 +191,7 @@ var _ = Describe("Client", func() {
 
 		It("allows passing host without port as server name", func() {
 			manager := NewMockPacketHandlerManager(mockCtrl)
-			manager.EXPECT().Add(gomock.Any(), gomock.Any())
+			manager.EXPECT().Add(gomock.Any(), nil, gomock.Any())
 			mockMultiplexer.EXPECT().AddConn(packetConn, gomock.Any(), gomock.Any()).Return(manager, nil)
 
 			hostnameChan := make(chan string, 1)
@@ -227,7 +227,7 @@ var _ = Describe("Client", func() {
 
 		It("returns after the handshake is complete", func() {
 			manager := NewMockPacketHandlerManager(mockCtrl)
-			manager.EXPECT().Add(gomock.Any(), gomock.Any())
+			manager.EXPECT().Add(gomock.Any(), nil, gomock.Any())
 			mockMultiplexer.EXPECT().AddConn(packetConn, gomock.Any(), gomock.Any()).Return(manager, nil)
 
 			run := make(chan struct{})
@@ -265,7 +265,7 @@ var _ = Describe("Client", func() {
 
 		It("returns an error that occurs while waiting for the handshake to complete", func() {
 			manager := NewMockPacketHandlerManager(mockCtrl)
-			manager.EXPECT().Add(gomock.Any(), gomock.Any())
+			manager.EXPECT().Add(gomock.Any(), nil, gomock.Any())
 			mockMultiplexer.EXPECT().AddConn(packetConn, gomock.Any(), gomock.Any()).Return(manager, nil)
 
 			testErr := errors.New("early handshake error")
@@ -300,7 +300,7 @@ var _ = Describe("Client", func() {
 
 		It("closes the session when the context is canceled", func() {
 			manager := NewMockPacketHandlerManager(mockCtrl)
-			manager.EXPECT().Add(gomock.Any(), gomock.Any())
+			manager.EXPECT().Add(gomock.Any(), nil, gomock.Any())
 			mockMultiplexer.EXPECT().AddConn(packetConn, gomock.Any(), gomock.Any()).Return(manager, nil)
 
 			sessionRunning := make(chan struct{})
@@ -348,7 +348,7 @@ var _ = Describe("Client", func() {
 
 		It("removes closed sessions from the multiplexer", func() {
 			manager := NewMockPacketHandlerManager(mockCtrl)
-			manager.EXPECT().Add(connID, gomock.Any())
+			manager.EXPECT().Add(connID, nil, gomock.Any())
 			manager.EXPECT().Retire(connID)
 			mockMultiplexer.EXPECT().AddConn(packetConn, gomock.Any(), gomock.Any()).Return(manager, nil)
 
@@ -393,7 +393,7 @@ var _ = Describe("Client", func() {
 
 			manager := NewMockPacketHandlerManager(mockCtrl)
 			mockMultiplexer.EXPECT().AddConn(gomock.Any(), gomock.Any(), gomock.Any()).Return(manager, nil)
-			manager.EXPECT().Add(gomock.Any(), gomock.Any())
+			manager.EXPECT().Add(gomock.Any(), nil, gomock.Any())
 
 			var conn connection
 			run := make(chan struct{})
@@ -511,7 +511,7 @@ var _ = Describe("Client", func() {
 
 		It("creates new sessions with the right parameters", func() {
 			manager := NewMockPacketHandlerManager(mockCtrl)
-			manager.EXPECT().Add(connID, gomock.Any())
+			manager.EXPECT().Add(connID, nil, gomock.Any())
 			mockMultiplexer.EXPECT().AddConn(packetConn, gomock.Any(), gomock.Any()).Return(manager, nil)
 
 			config := &Config{Versions: []protocol.VersionNumber{protocol.VersionTLS}}
@@ -564,7 +564,7 @@ var _ = Describe("Client", func() {
 
 			It("returns an error that occurs during version negotiation", func() {
 				manager := NewMockPacketHandlerManager(mockCtrl)
-				manager.EXPECT().Add(connID, gomock.Any())
+				manager.EXPECT().Add(connID, nil, gomock.Any())
 				mockMultiplexer.EXPECT().AddConn(packetConn, gomock.Any(), gomock.Any()).Return(manager, nil)
 
 				testErr := errors.New("early handshake error")

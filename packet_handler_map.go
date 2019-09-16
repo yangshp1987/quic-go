@@ -15,6 +15,11 @@ import (
 	"github.com/lucas-clemente/quic-go/internal/wire"
 )
 
+type handlerWithToken struct {
+	resetToken *[16]byte
+	handler    packetHandler
+}
+
 // The packetHandlerMap stores packetHandlers, identified by connection ID.
 // It is used:
 // * by the server to store sessions
@@ -25,7 +30,7 @@ type packetHandlerMap struct {
 	conn      net.PacketConn
 	connIDLen int
 
-	handlers    map[string] /* string(ConnectionID)*/ packetHandler
+	handlers    map[string] /* string(ConnectionID)*/ handlerWithToken
 	resetTokens map[[16]byte] /* stateless reset token */ packetHandler
 	server      unknownPacketHandler
 
@@ -52,7 +57,7 @@ func newPacketHandlerMap(
 		conn:                       conn,
 		connIDLen:                  connIDLen,
 		listening:                  make(chan struct{}),
-		handlers:                   make(map[string]packetHandler),
+		handlers:                   make(map[string]handlerWithToken),
 		resetTokens:                make(map[[16]byte]packetHandler),
 		deleteRetiredSessionsAfter: protocol.RetiredConnectionIDDeleteTimeout,
 		statelessResetEnabled:      len(statelessResetKey) > 0,
@@ -63,14 +68,13 @@ func newPacketHandlerMap(
 	return m
 }
 
-func (h *packetHandlerMap) Add(id protocol.ConnectionID, handler packetHandler) {
+func (h *packetHandlerMap) Add(id protocol.ConnectionID, token *[16]byte, handler packetHandler) {
 	h.mutex.Lock()
-	h.addLocked(id, handler)
+	h.handlers[string(id)] = handlerWithToken{resetToken: token, handler: handler}
+	if token != nil {
+		h.resetTokens[*token] = handler
+	}
 	h.mutex.Unlock()
-}
-
-func (h *packetHandlerMap) addLocked(id protocol.ConnectionID, handler packetHandler) {
-	h.handlers[string(id)] = handler
 }
 
 func (h *packetHandlerMap) Remove(id protocol.ConnectionID) {
@@ -82,12 +86,16 @@ func (h *packetHandlerMap) Remove(id protocol.ConnectionID) {
 func (h *packetHandlerMap) ReplaceWithClosed(id protocol.ConnectionID, handler packetHandler) {
 	h.mutex.Lock()
 	h.removeByConnectionIDAsString(string(id))
-	h.addLocked(id, handler)
+	h.handlers[string(id)] = handlerWithToken{handler: handler}
 	h.mutex.Unlock()
 	h.retireByConnectionIDAsString(string(id))
 }
 
 func (h *packetHandlerMap) removeByConnectionIDAsString(id string) {
+	entry := h.handlers[id]
+	if entry.resetToken != nil {
+		delete(h.resetTokens, *entry.resetToken)
+	}
 	delete(h.handlers, id)
 }
 
@@ -103,12 +111,6 @@ func (h *packetHandlerMap) retireByConnectionIDAsString(id string) {
 	})
 }
 
-func (h *packetHandlerMap) AddResetToken(token [16]byte, handler packetHandler) {
-	h.mutex.Lock()
-	h.resetTokens[token] = handler
-	h.mutex.Unlock()
-}
-
 func (h *packetHandlerMap) SetServer(s unknownPacketHandler) {
 	h.mutex.Lock()
 	h.server = s
@@ -119,14 +121,14 @@ func (h *packetHandlerMap) CloseServer() {
 	h.mutex.Lock()
 	h.server = nil
 	var wg sync.WaitGroup
-	for id, handler := range h.handlers {
-		if handler.getPerspective() == protocol.PerspectiveServer {
+	for id, entry := range h.handlers {
+		if entry.handler.getPerspective() == protocol.PerspectiveServer {
 			wg.Add(1)
 			go func(id string, handler packetHandler) {
 				// session.Close() blocks until the CONNECTION_CLOSE has been sent and the run-loop has stopped
 				_ = handler.Close()
 				wg.Done()
-			}(id, handler)
+			}(id, entry.handler)
 		}
 	}
 	h.mutex.Unlock()
@@ -150,12 +152,12 @@ func (h *packetHandlerMap) close(e error) error {
 	}
 
 	var wg sync.WaitGroup
-	for _, handler := range h.handlers {
+	for _, entry := range h.handlers {
 		wg.Add(1)
 		go func(handler packetHandler) {
 			handler.destroy(e)
 			wg.Done()
-		}(handler)
+		}(entry.handler)
 	}
 
 	if h.server != nil {
@@ -202,7 +204,7 @@ func (h *packetHandlerMap) handlePacket(
 		return
 	}
 
-	handler, handlerFound := h.handlers[string(connID)]
+	entry, handlerFound := h.handlers[string(connID)]
 
 	p := &receivedPacket{
 		remoteAddr: addr,
@@ -211,7 +213,7 @@ func (h *packetHandlerMap) handlePacket(
 		data:       data,
 	}
 	if handlerFound { // existing session
-		handler.handlePacket(p)
+		entry.handler.handlePacket(p)
 		return
 	}
 	if data[0]&0x80 == 0 {
